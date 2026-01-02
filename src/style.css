@@ -1,0 +1,385 @@
+/* ================= GLOBAL ================= */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #020c1b 50%, #0a192f 75%, #1a2332 100%);
+  background-attachment: fixed;
+  color: white;
+  margin: 0;
+  line-height: 1.6;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 80%, rgba(0, 123, 255, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(0, 123, 255, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #000000 0%, #0a0a0a 50%, #020c1b 100%);
+  padding: 15px 30px;
+  border-bottom: 2px solid #1a2332;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+}
+
+.nav-logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: 1px solid #007bff;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  background: #007bff;
+  color: #ffffff;
+}
+
+/* ================= MAIN CONTENT ================= */
+
+.container {
+  text-align: center;
+  padding: 40px;
+}
+
+.container h2 {
+  margin-bottom: 20px;
+  color: #007bff;
+}
+
+/* ================= CARD (HOME & SMALL PAGES) ================= */
+
+.card {
+  background: linear-gradient(145deg, #0f1419, #1a2332);
+  padding: 30px;
+  margin: auto;
+  width: 460px;        /* Home page width */
+  max-width: 95%;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(0, 123, 255, 0.1);
+  text-align: left;
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.oil-spill-card {
+  width: 900px;        /* Wider for OilSpillData table */
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(0, 123, 255, 0.3);
+}
+
+/* ================= REPORT CARD (PROJECT REPORT ONLY) ================= */
+
+.report-card {
+  background: linear-gradient(145deg, #0f1419, #1a2332);
+  padding: 35px;
+  margin: auto;
+  width: 900px;        /* ✅ WIDE ONLY FOR REPORT */
+  max-width: 95%;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(0, 123, 255, 0.1);
+  text-align: left;
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.report-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(0, 123, 255, 0.3);
+}
+
+/* Headings inside report */
+.report-card h3 {
+  margin-top: 25px;
+  margin-bottom: 8px;
+  color: #007bff;
+  border-left: 4px solid #007bff;
+  padding-left: 10px;
+}
+
+/* Paragraphs */
+.report-card p {
+  font-size: 14.5px;
+  color: #e6e6e6;
+  margin-bottom: 12px;
+}
+
+/* Lists */
+.report-card ul {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+.report-card ul li {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+/* ================= BUTTON ================= */
+
+button {
+  margin-top: 15px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* ================= RESULT SECTION ================= */
+
+.result {
+  margin-top: 25px;
+  background: #233554;
+  padding: 18px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.result h3 {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.metric {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.impact {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #ffd166;
+  line-height: 1.5;
+}
+
+.result img {
+  margin-top: 12px;
+  border-radius: 8px;
+  border: 2px solid #007bff;
+}
+
+/* ================= LINKS ================= */
+
+a {
+  display: block;
+  margin-top: 18px;
+  text-align: center;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ================= SUBTITLE ================= */
+
+.subtitle {
+  color: #007bff;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+  background: linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #020c1b 100%);
+  color: white;
+  padding: 40px 30px 20px;
+  margin-top: 50px;
+  border-top: 2px solid #1a2332;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #007bff, transparent);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-section h4 {
+  color: #007bff;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.footer-section p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #e6e6e6;
+}
+
+.footer-section p a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer-section p a:hover {
+  text-decoration: underline;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.footer-links li {
+  margin-bottom: 0;
+}
+
+.footer-logo {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.footer-logo:hover {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.footer-section ul li a {
+  color: #e6e6e6;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+  color: #007bff;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #112240;
+  color: #a0aec0;
+  font-size: 14px;
+}
+
+/* ================= OIL SPILL DATA ================= */
+
+.spill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.spill-table th {
+  background: linear-gradient(90deg, #0a0a0a, #1a2332);
+  color: #007bff;
+  padding: 15px 12px;
+  text-align: left;
+  border-bottom: 2px solid #007bff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.spill-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(0, 123, 255, 0.1);
+  background: rgba(26, 35, 50, 0.2);
+  transition: background 0.3s ease;
+}
+
+.spill-table tr:hover td {
+  background: rgba(0, 123, 255, 0.05);
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .report-card {
+    padding: 25px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
