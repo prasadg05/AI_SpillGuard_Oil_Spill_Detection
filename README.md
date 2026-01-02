@@ -1,1 +1,0 @@
-# AI_SpillGuard_Oil_Spill_Detection
