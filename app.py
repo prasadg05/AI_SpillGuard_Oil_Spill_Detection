@@ -12,62 +12,90 @@ CORS(app)
 # ---------------- IMAGE SEGMENTATION FUNCTION ----------------
 def generate_oil_spill_image(image_path):
     img = cv2.imread(image_path)
+
+    IMAGE_SIZE = 256
+    img = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE))
+
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Threshold-based segmentation (demo but image-based)
-    _, mask = cv2.threshold(gray, 90, 255, cv2.THRESH_BINARY_INV)
+    THRESHOLD_VALUE = 90
+    _, raw_mask = cv2.threshold(
+        blur, THRESHOLD_VALUE, 255, cv2.THRESH_BINARY_INV
+    )
 
-    # Remove noise
     kernel = np.ones((5, 5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    clean_mask = cv2.morphologyEx(raw_mask, cv2.MORPH_OPEN, kernel)
+    clean_mask = cv2.morphologyEx(clean_mask, cv2.MORPH_CLOSE, kernel)
 
-    # Oil spill calculation (REAL from pixels)
+    contours, _ = cv2.findContours(
+        clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+    mask = np.zeros_like(clean_mask)
+
+    MIN_AREA = 1500
+    for cnt in contours:
+        if cv2.contourArea(cnt) > MIN_AREA:
+            cv2.drawContours(mask, [cnt], -1, 255, -1)
+
     oil_pixels = np.sum(mask == 255)
     total_pixels = mask.size
     oil_percent = round((oil_pixels / total_pixels) * 100, 2)
 
-    # Create colored overlay
     overlay = img.copy()
-    overlay[mask == 255] = [0, 255, 255]  # Yellow oil spill
+    overlay[mask == 0] = [235, 206, 135]
+    overlay[mask == 255] = [203, 192, 255]
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(overlay, contours, -1, (0, 0, 0), 2)
 
     result = cv2.addWeighted(img, 0.7, overlay, 0.3, 0)
 
-    return result, oil_percent
+    metadata = {
+        "image_resolution": "256 x 256",
+        "segmentation_method": "Threshold-based Image Segmentation",
+        "threshold_value": THRESHOLD_VALUE
+    }
+
+    return result, overlay, mask, oil_percent, metadata
 
 # ---------------- PREDICT ROUTE ----------------
 @app.route("/predict", methods=["POST"])
 def predict():
     image = request.files["image"]
 
-    # Create folders
     os.makedirs("uploads", exist_ok=True)
     os.makedirs("outputs", exist_ok=True)
     os.makedirs("reports", exist_ok=True)
 
-    # Save uploaded image
     image_path = os.path.join("uploads", image.filename)
     image.save(image_path)
 
-    # Generate oil spill image
-    result_img, oil_percent = generate_oil_spill_image(image_path)
+    result_img, overlay_img, mask, oil_percent, metadata = generate_oil_spill_image(image_path)
 
-    result_img_name = "result_" + image.filename
-    result_img_path = os.path.join("outputs", result_img_name)
-    cv2.imwrite(result_img_path, result_img)
+    result_name = "result_" + image.filename
+    overlay_name = "overlay_" + image.filename
+    mask_name = "mask_" + image.filename
 
-    # Calculations
-    affected_area = round(oil_percent * 1.5, 2)  # sq.km (estimated)
-    status = "Oil Spill Detected" if oil_percent > 5 else "No Oil Spill"
-    confidence = round(85 + (oil_percent / 100) * 15, 2)
+    cv2.imwrite(os.path.join("outputs", result_name), result_img)
+    cv2.imwrite(os.path.join("outputs", overlay_name), overlay_img)
+    cv2.imwrite(os.path.join("outputs", mask_name), mask)
 
+    OIL_THRESHOLD = 3.0
+    if oil_percent >= OIL_THRESHOLD:
+        status = "Oil Spill Detected"
+        confidence = round(90 + (oil_percent / 100) * 10, 2)
+    else:
+        status = "No Oil Spill Detected"
+        confidence = round(85 - oil_percent, 2)
+
+    affected_area = round(oil_percent * 1.5, 2)
     time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-    # Clean PDF name
     name, _ = os.path.splitext(image.filename)
     pdf_filename = f"{name}.pdf"
     pdf_path = os.path.join("reports", pdf_filename)
 
-    # ---------------- PDF GENERATION ----------------
     c = canvas.Canvas(pdf_path)
     c.setFont("Helvetica-Bold", 16)
     c.drawString(50, 800, "OilGps System – Oil Spill Detection Report")
@@ -80,35 +108,34 @@ def predict():
     c.drawString(50, 680, f"Affected Area: {affected_area} sq.km")
     c.drawString(50, 660, f"Uploaded Time: {time}")
 
-    c.drawString(50, 630, "Methodology:")
-    c.drawString(70, 610, "- Image converted to grayscale")
-    c.drawString(70, 590, "- Threshold-based segmentation applied")
-    c.drawString(70, 570, "- Morphological operations remove noise")
-    c.drawString(70, 550, "- Pixel analysis estimates affected area")
-
     c.showPage()
     c.save()
 
-    # ---------------- RESPONSE ----------------
     return jsonify({
         "status": status,
         "confidence": confidence,
         "oil_percent": oil_percent,
         "affected_area": affected_area,
         "time": time,
-        "result_image": f"/outputs/{result_img_name}",
+        "metadata": metadata,
+        "original_image": f"/uploads/{image.filename}",
+        "result_image": f"/outputs/{result_name}",
+        "overlay_image": f"/outputs/{overlay_name}",
+        "mask_image": f"/outputs/{mask_name}",
         "pdf": f"/reports/{pdf_filename}"
     })
 
-# ---------------- SERVE FILES ----------------
 @app.route("/outputs/<filename>")
-def get_output_image(filename):
+def get_output(filename):
     return send_from_directory("outputs", filename)
 
+@app.route("/uploads/<filename>")
+def get_upload(filename):
+    return send_from_directory("uploads", filename)
+
 @app.route("/reports/<filename>")
-def download_pdf(filename):
+def get_report(filename):
     return send_from_directory("reports", filename)
 
-# ---------------- RUN APP ----------------
 if __name__ == "__main__":
     app.run(debug=True)
